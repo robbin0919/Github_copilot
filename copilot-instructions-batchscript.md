@@ -260,3 +260,101 @@ for /f %%a in ('wmic path win32_localtime get hour^,minute /format:value') do se
 3. 建議使用 wmic 或 PowerShell 取得統一格式
 4. 處理時間時需考慮時區問題
 5. 批次檔時間運算建議使用 PowerShell
+
+## IF-ELSE 語法規範
+
+### 基本語法規則
+- 每個開括號 `(` 必須有對應的閉括號 `)`
+- 多行結構中，`else` 必須與 `if` 的結束括號在同一行
+- 使用 `enabledelayedexpansion` 處理複雜條件
+- 在條件檢查中使用引號包覆變數和字串比較
+
+### 正確 IF-ELSE 寫法
+```batch
+rem 單行結構
+if condition (command1) else (command2)
+
+rem 多行結構 - else 必須與前一個結束括號在同一行
+if condition (
+    command1
+    command2
+) else (
+    command3
+    command4
+)
+
+rem 巢狀條件結構
+if "%var%"=="1" (
+    if exist "file.txt" (
+        echo 找到檔案
+    ) else (
+        echo 找不到檔案
+    )
+) else (
+    echo 變數不等於1
+)
+```
+
+### 常見錯誤與解決方案
+
+#### 錯誤寫法 1：ELSE 與 IF 的結束括號不在同一行
+```batch
+if exist "file.txt" (
+    echo 檔案存在
+)
+else (                   :: 錯誤！將導致"這個時候不應有 )。"錯誤
+    echo 檔案不存在
+)
+```
+
+#### 正確寫法 1：
+```batch
+if exist "file.txt" (
+    echo 檔案存在
+) else (                 :: 正確！else 與前面的 ) 在同一行
+    echo 檔案不存在
+)
+```
+
+#### 錯誤寫法 2：巢狀 IF 結構中括號對不齊
+```batch
+if "%var%"=="1" (
+    if exist "file.txt" (
+        echo 找到檔案
+    )
+    else (               :: 錯誤！將導致"這個時候不應有 )。"錯誤
+        echo 找不到檔案
+    )
+)
+```
+
+#### 正確寫法 2：
+```batch
+if "%var%"=="1" (
+    if exist "file.txt" (
+        echo 找到檔案
+    ) else (             :: 正確！內層 else 與前面的 ) 在同一行
+        echo 找不到檔案
+    )
+)
+```
+
+### 預防錯誤的最佳實踐
+1. 保持一致的縮排和括號對齊，方便查找問題
+2. 在複雜條件結構中，考慮使用子程序或 goto 避免多層巢狀
+3. 避免在括號內使用特殊字元 (`&`, `|`, `<`, `>` 等) 或適當轉義
+4. 在條件檢查中使用引號包覆變數，以防止變數為空時的語法錯誤
+5. 使用 `setlocal enabledelayedexpansion` 在複雜條件判斷中使用 `!var!` 語法
+
+### 其他條件判斷技巧
+```batch
+rem 多條件判斷：AND 與 OR 邏輯
+if exist "file1.txt" if exist "file2.txt" echo 兩個檔案都存在    rem AND 邏輯
+if exist "file1.txt" (echo 檔案1存在) else if exist "file2.txt" (echo 檔案2存在)  rem OR 邏輯
+
+rem 條件取反
+if not exist "file.txt" echo 檔案不存在
+
+rem 比較運算符：EQU(等於), NEQ(不等於), LSS(小於), LEQ(小於等於), GTR(大於), GEQ(大於等於)
+if !COUNT! GEQ 10 echo 計數大於等於10
+```
