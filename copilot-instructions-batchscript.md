@@ -358,3 +358,87 @@ if not exist "file.txt" echo 檔案不存在
 rem 比較運算符：EQU(等於), NEQ(不等於), LSS(小於), LEQ(小於等於), GTR(大於), GEQ(大於等於)
 if !COUNT! GEQ 10 echo 計數大於等於10
 ```
+
+## 檔案與編碼處理規範
+
+### 文件編碼設定
+- 所有批次檔統一使用 UTF-8 編碼保存
+- 避免使用 ANSI、BIG5 或其他本地編碼格式
+- 在 Visual Studio Code 中，可以透過右下角選擇文件編碼
+
+### 中文字元處理
+```batch
+@echo off
+rem 設定命令提示字元為 UTF-8 編碼
+chcp 65001 >nul
+setlocal enabledelayedexpansion
+
+rem 其他批次檔內容...
+```
+
+### 中文輸出與重定向
+```batch
+rem 直接輸出中文到控制台
+echo 這是中文輸出
+
+rem 將中文輸出到檔案 (UTF-8 with BOM)
+>output.txt echo 這是中文輸出
+
+rem 輸出到 UTF-8 無 BOM 檔案 (使用 PowerShell)
+powershell -Command "[System.IO.File]::WriteAllText('output.txt', '這是中文輸出', [System.Text.Encoding]::UTF8)"
+```
+
+### 中文檔案讀取
+```batch
+rem 讀取 UTF-8 檔案內容
+for /f "usebackq tokens=* delims=" %%a in ("UTF8檔案.txt") do (
+    echo %%a
+)
+
+rem 使用 PowerShell 讀取 UTF-8 檔案
+for /f "delims=" %%a in ('powershell -Command "[System.IO.File]::ReadAllText('UTF8檔案.txt',[System.Text.Encoding]::UTF8)"') do (
+    echo %%a
+)
+```
+
+### 避免中文路徑問題
+```batch
+rem 處理含中文的路徑
+set "CHINESE_PATH=C:\測試目錄"
+
+rem 檢查目錄是否存在
+if exist "!CHINESE_PATH!\*" (
+    echo 目錄存在
+) else (
+    echo 目錄不存在
+)
+
+rem 避免路徑中使用特殊中文字元 (如：、，。？！【】（）)
+```
+
+### 日誌檔案編碼
+```batch
+rem 建立 UTF-8 日誌檔案 (通過 PowerShell)
+powershell -Command "Out-File -FilePath 'log.txt' -Encoding utf8 -InputObject '[%date% %time%] 程序啟動'"
+
+rem 追加日誌內容
+powershell -Command "Add-Content -Path 'log.txt' -Encoding utf8 -Value '[%date% %time%] 操作完成'"
+```
+
+### 編碼轉換
+```batch
+rem 將 ANSI 編碼檔案轉換為 UTF-8
+powershell -Command "$content = Get-Content -Path 'ansi.txt' -Encoding Default; Set-Content -Path 'utf8.txt' -Encoding UTF8 -Value $content"
+
+rem 將 UTF-8 編碼檔案轉換為 ANSI (謹慎使用，可能導致字元丟失)
+powershell -Command "$content = Get-Content -Path 'utf8.txt' -Encoding UTF8; Set-Content -Path 'ansi.txt' -Encoding Default -Value $content"
+```
+
+### 編碼相關最佳實踐
+1. 在批次檔開頭使用 `chcp 65001` 設定 UTF-8 編碼環境
+2. 使用 `enabledelayedexpansion` 避免變數擴展問題
+3. 處理中文內容時，儘量使用 PowerShell 進行檔案讀寫
+4. 編輯器設定為 UTF-8 編碼 (不使用 BOM)
+5. 避免使用不必要的中文路徑和檔名
+6. 測試批次檔在不同語言環境下的執行結果
+7. 在重要資料處理前先進行編碼檢查
