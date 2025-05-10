@@ -362,14 +362,14 @@ if !COUNT! GEQ 10 echo 計數大於等於10
 ## 檔案與編碼處理規範
 
 ### 文件編碼設定
-- 所有批次檔統一使用 UTF-8 編碼保存
-- 避免使用 ANSI、BIG5 或其他本地編碼格式
-- 在 Visual Studio Code 中，可以透過右下角選擇文件編碼
+- **統一標準**: 所有批次檔統一使用 UTF-8 編碼保存
+- **避免本地編碼**: 禁止使用 ANSI、BIG5 或其他本地編碼格式，防止跨環境執行時出現亂碼
+- **編輯器設定**: 在 Visual Studio Code 中，選擇右下角的編碼選項，設定為 UTF-8 (無 BOM)
 
 ### 中文字元處理
 ```batch
 @echo off
-rem 設定命令提示字元為 UTF-8 編碼
+rem 設定命令提示字元為 UTF-8 編碼（必須放在檔案最前面）
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
@@ -384,18 +384,18 @@ echo 這是中文輸出
 rem 將中文輸出到檔案 (UTF-8 with BOM)
 >output.txt echo 這是中文輸出
 
-rem 輸出到 UTF-8 無 BOM 檔案 (使用 PowerShell)
+rem 輸出到 UTF-8 無 BOM 檔案 (推薦方式)
 powershell -Command "[System.IO.File]::WriteAllText('output.txt', '這是中文輸出', [System.Text.Encoding]::UTF8)"
 ```
 
 ### 中文檔案讀取
 ```batch
-rem 讀取 UTF-8 檔案內容
+rem 讀取 UTF-8 檔案內容 (簡單方式，但可能有編碼問題)
 for /f "usebackq tokens=* delims=" %%a in ("UTF8檔案.txt") do (
     echo %%a
 )
 
-rem 使用 PowerShell 讀取 UTF-8 檔案
+rem 使用 PowerShell 讀取 UTF-8 檔案 (推薦方式，確保編碼正確)
 for /f "delims=" %%a in ('powershell -Command "[System.IO.File]::ReadAllText('UTF8檔案.txt',[System.Text.Encoding]::UTF8)"') do (
     echo %%a
 )
@@ -403,7 +403,7 @@ for /f "delims=" %%a in ('powershell -Command "[System.IO.File]::ReadAllText('UT
 
 ### 避免中文路徑問題
 ```batch
-rem 處理含中文的路徑
+rem 處理含中文的路徑 (確保使用雙引號包覆)
 set "CHINESE_PATH=C:\測試目錄"
 
 rem 檢查目錄是否存在
@@ -414,6 +414,7 @@ if exist "!CHINESE_PATH!\*" (
 )
 
 rem 避免路徑中使用特殊中文字元 (如：、，。？！【】（）)
+rem 優先使用英文路徑和檔名
 ```
 
 ### 日誌檔案編碼
@@ -425,7 +426,7 @@ rem 追加日誌內容
 powershell -Command "Add-Content -Path 'log.txt' -Encoding utf8 -Value '[%date% %time%] 操作完成'"
 ```
 
-### 編碼轉換
+### 編碼轉換 (維護遺留系統時可能需要)
 ```batch
 rem 將 ANSI 編碼檔案轉換為 UTF-8
 powershell -Command "$content = Get-Content -Path 'ansi.txt' -Encoding Default; Set-Content -Path 'utf8.txt' -Encoding UTF8 -Value $content"
@@ -435,10 +436,10 @@ powershell -Command "$content = Get-Content -Path 'utf8.txt' -Encoding UTF8; Set
 ```
 
 ### 編碼相關最佳實踐
-1. 在批次檔開頭使用 `chcp 65001` 設定 UTF-8 編碼環境
-2. 使用 `enabledelayedexpansion` 避免變數擴展問題
-3. 處理中文內容時，儘量使用 PowerShell 進行檔案讀寫
-4. 編輯器設定為 UTF-8 編碼 (不使用 BOM)
-5. 避免使用不必要的中文路徑和檔名
-6. 測試批次檔在不同語言環境下的執行結果
-7. 在重要資料處理前先進行編碼檢查
+1. **強制編碼標準**: 在批次檔開頭使用 `chcp 65001` 設定 UTF-8 編碼環境
+2. **變數處理**: 使用 `enabledelayedexpansion` 並使用 `!var!` 而非 `%var%` 避免變數擴展問題
+3. **PowerShell 整合**: 處理中文內容時，優先使用 PowerShell 進行檔案讀寫操作
+4. **一致性**: 整個專案使用相同的編碼 (UTF-8 無 BOM)，提高跨平台兼容性
+5. **簡化路徑**: 避免使用不必要的中文路徑和檔名，特別是在批次處理系統中
+6. **跨環境測試**: 測試批次檔在不同語言環境和代碼頁下的執行結果
+7. **預檢**: 在處理重要資料前先進行編碼檢查和測試
