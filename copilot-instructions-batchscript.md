@@ -362,19 +362,18 @@ if !COUNT! GEQ 10 echo 計數大於等於10
 ## 檔案與編碼處理規範
 
 ### 文件編碼設定
-- 批次檔在台灣環境中建議使用 ANSI (繁體中文環境下為 BIG5) 編碼
-- 使用 UTF-8 編碼時應注意可能發生的顯示問題
-- 在 Visual Studio Code 中，可以透過右下角選擇文件編碼 (ANSI/BIG5)
+- 批次檔應使用系統預設編碼格式保存
+- 若需處理不同編碼的檔案，應使用專用的轉換工具而非更改系統編碼頁
+- 在 Visual Studio Code 中，可以透過右下角選擇文件編碼
 
-### 中文字元處理
+### 中文字元處理 (使用系統預設)
 ```batch
 @echo off
-rem 設定命令提示字元為本地編碼頁 (繁體中文為 950/BIG5)
-chcp 950 >nul
+rem 使用系統預設編碼頁，避免干擾其他程式執行
 setlocal enabledelayedexpansion
 
-rem 設定為簡體中文 (若需要)
-rem chcp 936 >nul
+rem 如需查看當前編碼頁 (但不要更改)
+rem for /f "tokens=2 delims=:" %%i in ('chcp') do echo 當前編碼頁: %%i
 
 rem 其他批次檔內容...
 ```
@@ -384,25 +383,37 @@ rem 其他批次檔內容...
 rem 直接輸出中文到控制台
 echo 這是中文輸出
 
-rem 將中文輸出到檔案 (使用當前代碼頁)
+rem 將中文輸出到檔案 (使用系統預設編碼頁)
 >output.txt echo 這是中文輸出
+```
 
-rem 如有亂碼問題，確保環境使用相同代碼頁
+### 處理 UTF-8 編碼檔案 (在 ANSI/BIG5 環境)
+```batch
+rem 使用 PowerShell 讀取 UTF-8 檔案內容，無需更改系統編碼頁
+for /f "delims=" %%a in ('powershell -Command "[System.IO.File]::ReadAllText('utf8文件.txt',[System.Text.Encoding]::UTF8)"') do (
+    echo %%a
+)
+
+rem 使用 PowerShell 寫入 UTF-8 檔案，無需更改系統編碼頁
+powershell -Command "[System.IO.File]::WriteAllText('output.txt', '中文內容', [System.Text.Encoding]::UTF8)"
 ```
 
 ### 中文檔案讀取
 ```batch
-rem 讀取本地編碼檔案內容
+rem 讀取系統預設編碼檔案內容
 for /f "usebackq tokens=* delims=" %%a in ("中文檔案.txt") do (
     echo %%a
 )
 
-rem 處理不同編碼的檔案時，確保轉換為相容編碼
+rem 處理不同編碼的檔案時，使用 PowerShell 進行讀取
+for /f "delims=" %%a in ('powershell -Command "$content = [System.IO.File]::ReadAllText('不同編碼.txt', [System.Text.Encoding]::GetEncoding(950)); Write-Output $content"') do (
+    echo %%a
+)
 ```
 
 ### 避免中文路徑問題
 ```batch
-rem 處理含中文的路徑
+rem 處理含中文的路徑 (雙引號防止空格問題)
 set "CHINESE_PATH=C:\測試目錄"
 
 rem 檢查目錄是否存在
@@ -411,85 +422,55 @@ if exist "!CHINESE_PATH!\*" (
 ) else (
     echo 目錄不存在
 )
-
-rem 處理中文路徑時，確保命令提示字元的代碼頁與檔案系統編碼一致
 ```
 
 ### 日誌檔案編碼
 ```batch
-rem 建立符合本地編碼的日誌檔案
+rem 建立系統預設編碼的日誌檔案
 echo [%date% %time%] 程序啟動 > log.txt
 
 rem 追加日誌內容
 echo [%date% %time%] 操作完成 >> log.txt
+
+rem 若需要建立 UTF-8 日誌，使用 PowerShell
+powershell -Command "Add-Content -Path 'utf8_log.txt' -Encoding UTF8 -Value '[%date% %time%] 程序啟動'"
 ```
 
-### ANSI/BIG5 與 UTF-8 轉換
+### 不同編碼文件處理 (無需更改代碼頁)
 ```batch
-rem 若必須在不同環境使用，提供轉換機制
-
-rem 使用 PowerShell 進行編碼轉換 (BIG5/ANSI 轉 UTF-8)
+rem 從 ANSI/BIG5 讀取並轉換為 UTF-8
 powershell -Command "$content = Get-Content -Path 'ansi.txt' -Encoding Default; Set-Content -Path 'utf8.txt' -Encoding UTF8 -Value $content"
 
-rem UTF-8 轉回 BIG5/ANSI
+rem 從 UTF-8 讀取並轉換為 ANSI/BIG5
 powershell -Command "$content = Get-Content -Path 'utf8.txt' -Encoding UTF8; Set-Content -Path 'ansi.txt' -Encoding Default -Value $content"
 ```
 
 ### 編碼相關最佳實踐
-1. **保持編碼一致性**：整個專案使用同一種編碼標準
-2. **優先使用本地編碼**：在台灣環境使用 BIG5，中國環境使用 GB2312/GBK
-3. **命令提示字元設定**：使用 `chcp 950` (BIG5) 或 `chcp 936` (GBK) 確保命令提示字元顯示正確
-4. **檔案頭標記**：在批次檔開頭註明使用的編碼方式
-5. **避免混合編碼**：不在同一系統中混用不同編碼的檔案
-6. **路徑處理**：中文路徑使用雙引號包覆，避免特殊符號
-7. **跨平台相容**：若需要跨平台使用，考慮提供編碼轉換機制
-8. **簡化檔名**：盡量使用英文或數字作為檔名，減少編碼問題
-
-### 編碼轉換工具
-```batch
-rem 建立一個簡單的編碼轉換批次檔
-
-@echo off
-setlocal enabledelayedexpansion
-
-if "%~1"=="" goto :usage
-if "%~2"=="" goto :usage
-
-set "SRC_FILE=%~1"
-set "DST_FILE=%~2"
-set "SRC_ENC=%~3"
-set "DST_ENC=%~4"
-
-if not defined SRC_ENC set "SRC_ENC=Default"
-if not defined DST_ENC set "DST_ENC=UTF8"
-
-powershell -Command "$content = Get-Content -Path '%SRC_FILE%' -Encoding %SRC_ENC%; Set-Content -Path '%DST_FILE%' -Encoding %DST_ENC% -Value $content"
-
-exit /b 0
-
-:usage
-echo 用法: %~nx0 來源檔案 目標檔案 [來源編碼] [目標編碼]
-echo 範例: %~nx0 input.txt output.txt Default UTF8
-exit /b 1
-```
+1. **不更改系統編碼頁**: 避免使用 `chcp` 更改系統編碼頁，保持系統預設
+2. **使用專用工具處理不同編碼**: 使用 PowerShell 處理特殊編碼的文件，而非變更系統設定
+3. **保持編碼一致性**: 整個專案使用同一種編碼標準
+4. **檔案頭標記**: 在批次檔開頭註明使用的編碼方式作為文件說明
+5. **PowerShell 整合**: 使用 PowerShell 處理不同編碼文件時指定明確的編碼參數
+6. **路徑處理**: 中文路徑使用雙引號包覆，避免特殊符號
+7. **簡化檔名**: 盡量使用英文或數字作為檔名，減少編碼問題
+8. **兼容性測試**: 在不同系統環境下測試批次檔，確保編碼相容性
 
 ### 常見編碼問題與解決方案
 
 #### 問題1: 中文顯示為亂碼
 ```batch
-rem 解決方案: 設定正確的代碼頁
-chcp 950 >nul
+rem 解決方案: 使用 PowerShell 處理特殊編碼，而不是更改系統編碼頁
+powershell -Command "$content = [System.IO.File]::ReadAllText('source.txt', [System.Text.Encoding]::GetEncoding(65001)); Write-Output $content"
 ```
 
 #### 問題2: 輸出到檔案時中文變亂碼
 ```batch
-rem 解決方案: 確保使用相同編碼讀寫
-rem 使用 type 命令而非 echo 重定向
-type 中文內容.txt > 輸出.txt
+rem 解決方案: 使用 PowerShell 指定輸出編碼
+powershell -Command "$content = '中文內容'; [System.IO.File]::WriteAllText('output.txt', $content, [System.Text.Encoding]::GetEncoding(950))"
 ```
 
 #### 問題3: 不同電腦執行結果不同
 ```batch
-rem 解決方案: 在批次檔開頭明確設定代碼頁
-chcp 950 >nul
+rem 解決方案: 使用編碼無關的 PowerShell 方式處理文件
+powershell -Command "$content = Get-Content -Path 'input.txt' -Encoding Default; Write-Output $content"
 ```
