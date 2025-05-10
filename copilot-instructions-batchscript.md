@@ -1,7 +1,7 @@
 ---
 title: Batch Script 編碼規範和建議
 version: 1.0.0
-date: 2025-05-07
+date: 2025-05-10
 author: Robbin Lee
 license: MIT
 repository: https://github.com/robbin0919/Github_copilot
