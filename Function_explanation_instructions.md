@@ -7,7 +7,8 @@
 3. 每個步驟必須包含：
    - 步驟標題和序號
    - 對該步驟功能的詳細說明
-   - 相關程式檔案的完整路徑名稱，不要只顯示檔案名稱
+   - 相關程式檔案的完整路徑名稱，並完整顯示檔案名稱，
+     例如：不要顯示 檔案路徑：`LoginController.cs`，而是要完整顯示檔案路徑：`/webappj/Controllers/LoginController.cs`，不需要游標移到檔案上才會顯示完整路徑。
    - 對應的程式碼片段（使用程式碼區塊）
    - 程式碼的解釋說明
    - 相關的日誌記錄（如果有）
@@ -19,13 +20,27 @@
    - 如果有流程圖，請在解說的最後附上流程圖。
    - 流程圖應該清楚地顯示每個步驟之間的關係和流程。
    - 流程圖應該使用簡單明瞭的圖形和文字標籤，以便於理解。
+   - 使用mermaid 語法來生成循序圖
    - 使用mermaid 語法來生成流程圖。
-   -  
-
-
-
-
-
+ - 循序圖
+ - ```mermaid
+   sequenceDiagram
+       participant User
+       participant System
+       User->>System: 新增任務
+       System-->>User: 任務已新增
+       User->>System: 刪除任務
+       System-->>User: 任務已刪除
+       User->>System: 查看任務
+       System-->>User: 返回任務清單
+   ```
+    - 流程圖
+    - ```mermaid
+     graph TD
+         A[開始] --> B{判斷}
+         B -- Yes --> C[執行]
+         B -- No --> D[結束]
+     ```
 
 ## 解說範例
 當被要求解說某個功能時，請遵循以下範例：
