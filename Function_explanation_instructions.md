@@ -1,5 +1,13 @@
 # 功能解說指令
-
+<!--
+maintainers:
+  - name: Robbin Lee
+    email: robbin0919@domain.com 
+Last Modified: 2025-05-28 
+Version: 1.0.0
+Description: 
+此文件提供一套標準化的指導方針，用於解說系統功能，特別針對 .NET 生態系統中的專案。目的是幫助開發者清楚地理解系統功能的實現細節和流程。
+-->
 ## 解說風格
 當被要求解說系統功能時，請採用以下結構：
 1. 提供功能的整體概述
