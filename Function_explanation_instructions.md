@@ -34,13 +34,13 @@
        User->>System: 查看任務
        System-->>User: 返回任務清單
    ```
-    - 流程圖
-    - ```mermaid
-     graph TD
-         A[開始] --> B{判斷}
-         B -- Yes --> C[執行]
-         B -- No --> D[結束]
-     ```
+- 流程圖
+   ```mermaid
+   graph TD
+       A[開始] --> B{判斷}
+       B -- Yes --> C[執行]
+       B -- No --> D[結束]
+   ```
 
 ## 解說範例
 當被要求解說某個功能時，請遵循以下範例：
