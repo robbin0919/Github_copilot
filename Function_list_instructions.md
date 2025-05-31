@@ -39,6 +39,8 @@ Description:
        - CSS
        - 其他相關檔案
      - 格式: 按檔案類型分組，每組使用標題說明
+     - 檔案類型標題使用原文，不要翻譯
+     - 若有多個檔案，請使用清單格式列出
        ```
        Controllers:
        [`專案名稱/Areas/模組名/Controllers/控制器名稱.cs`]
@@ -49,26 +51,30 @@ Description:
        Models:
        [`專案名稱/Areas/模組名/Models/模型名稱.cs`]
        
-       JavaScript:
-       [`專案名稱/Areas/模組名/Scripts/腳本名稱.js`]
-       
-       CSS:
-       [`專案名稱/Areas/模組名/Content/樣式名稱.css`]
        ```
      - 若某類型無相關檔案，可省略該類型
      - 對於每個檔案，可選擇性增加簡短說明
      - 例如：
        ```
-       控制器:
+       Controllers:
        [`ProjectA/Areas/Admin/Controllers/UserController.cs`] - 處理使用者管理操作
        
-       視圖:
+       Views:
        [`ProjectA/Areas/Admin/Views/User/Index.cshtml`] - 使用者列表頁面
        [`ProjectA/Areas/Admin/Views/User/Edit.cshtml`] - 使用者編輯頁面
        
-       模型:
+       Models:
        [`ProjectA/Areas/Admin/Models/UserModel.cs`] - 使用者資料模型
        ```
+   - 呼叫網址清單
+     - 提供功能呼叫網址的清單。
+     - 格式：
+       - 功能名稱：使用者管理
+       - 呼叫網址：/Admin/User/Index
+       - 相對應程式檔案：列出相關的所有檔案，使用相對路徑。
+       - 方法：GET
+       - 描述：顯示使用者列表頁面。
+     - 若有多個呼叫網址，請使用清單格式列出。
 
 2. 權限代碼清單
    - 提供權限代碼、功能模組、功能名稱、功能描述的清單。
@@ -77,3 +83,4 @@ Description:
      - 功能模組：系統管理
      - 功能名稱：使用者管理
      - 功能描述：管理系統使用者的新增、修改、刪除等操作。
+   - 若有多個權限代碼，請使用清單格式列出。
