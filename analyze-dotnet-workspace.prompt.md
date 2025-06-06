@@ -1,3 +1,12 @@
+<!--
+maintainers:
+  - name: Robbin Lee
+    email: robbin0919@gmail.com 
+Last Modified: 2025-06-07 
+Version: 1.1.0
+Description:
+此Prompt File 文件，用於分析 .NET 專案結構與依賴關係，提供系統架構的全貌
+-->
 # .NET 專案結構與依賴全覽分析
 
 請協助分析目前 workspace（${workspaceFolder}）下所有 .csproj 檔案，整理出各專案（目錄）之間的關係與系統架構。請依下列步驟進行：
