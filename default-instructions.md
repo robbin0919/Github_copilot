@@ -38,4 +38,4 @@ Description:
 2.  如果是，**每一個**檔案名稱是否都以**從專案根目錄開始的完整路徑**格式顯示？
 3.  是否有任何例外？（答案：**沒有例外**）
 
-任何僅顯示檔名的情況（例如 `TokenService.cs` 或 `jb_PersonnelMaint.cs`）都是不允許的，必須修正為包含完整路徑的格式（例如 `src/services/TokenService.cs`）。
+任何僅顯示檔名的情況（例如 `TokenService.cs` 或 `jb_Maint.cs`）都是不允許的，必須修正為包含完整路徑的格式（例如 `src/services/TokenService.cs`）。
